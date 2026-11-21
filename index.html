@@ -20,7 +20,7 @@
         <div class="max-width">
             <div class="logo"><a href="#home">Portfo<span>lio.</span></a></div>
 
-            <ul class="menu">
+            <ul class="menu" id="siteMenu">
                 <li><a href="#home" class="menu-link">Home</a></li>
                 <li><a href="#about" class="menu-link">About</a></li>
                 <li><a href="#education" class="menu-link">Education</a></li>
@@ -31,7 +31,7 @@
                 <li><a href="#contactME" class="menu-link">Contact</a></li>
             </ul>
 
-            <button class="menu-btn" aria-label="Open menu">
+            <button type="button" class="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="siteMenu">
                 <i class="material-icons">dashboard</i>
             </button>
         </div>
@@ -56,7 +56,7 @@
 
                 <div class="column right">
                     <div class="text">My name is Eman Butt and I'm a <span>Software Developer & Technical Support Analyst</span></div>
-                     <p>
+                    <p>
                         Senior Technical Support Specialist with 6+ years of experience managing complex enterprise application and infrastructure challenges across Windows and Linux environments.
                         Specializing in advanced troubleshooting, root cause analysis, incident escalation, and system reliability, with a strong focus on driving efficient resolutions and operational improvements.
                         Experienced in SQL-based diagnostics, API integrations, automation, and cross-functional collaboration with engineering teams to deliver scalable, reliable technical solutions.
@@ -221,8 +221,8 @@
             <div class="work-section">
                 <div class="work-track" id="workTrack">
                     <article class="work-card">
-                        <div class="work-logo work-logo-text" role="img" aria-label="OpenText">
-                            <span aria-hidden="true">open<br>text</span>
+                        <div class="work-logo">
+                            <img src="images/OpenText.png" alt="OpenText logo">
                         </div>
 
                         <div class="work-card-content">
@@ -302,8 +302,9 @@
                 </div>
 
                 <div class="controls">
-                    <button type="button" class="work-prev" aria-label="Previous work card">←</button>
-                    <button type="button" class="work-next" aria-label="Next work card">→</button>
+                    <button type="button" class="work-prev" aria-label="Previous work card" aria-controls="workTrack">←</button>
+                    <span class="carousel-status" id="workStatus" aria-live="polite"></span>
+                    <button type="button" class="work-next" aria-label="Next work card" aria-controls="workTrack">→</button>
                 </div>
             </div>
         </div>
@@ -523,8 +524,9 @@
                 </div>
 
                 <div class="controls">
-                    <button type="button" class="skills-prev" aria-label="Previous skill card">←</button>
-                    <button type="button" class="skills-next" aria-label="Next skill card">→</button>
+                    <button type="button" class="skills-prev" aria-label="Previous skill card" aria-controls="skillsTrack">←</button>
+                    <span class="carousel-status" id="skillsStatus" aria-live="polite"></span>
+                    <button type="button" class="skills-next" aria-label="Next skill card" aria-controls="skillsTrack">→</button>
                 </div>
             </div>
         </div>
@@ -665,6 +667,7 @@
 
                 <div class="controls">
                     <button type="button" class="projects-prev" aria-label="Previous project card" aria-controls="projectsTrack">←</button>
+                    <span class="carousel-status" id="projectsStatus" aria-live="polite"></span>
                     <button type="button" class="projects-next" aria-label="Next project card" aria-controls="projectsTrack">→</button>
                 </div>
             </div>

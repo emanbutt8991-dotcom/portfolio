@@ -87,6 +87,31 @@ $(document).ready(function(){
 
         $(prevSelector).prop("disabled", atStart);
         $(nextSelector).prop("disabled", atEnd);
+
+        updateCarouselStatus(track, atEnd);
+    }
+
+    // "2 / 5" (or "2–3 / 7" when two cards fit) between the carousel arrows
+    const carouselStatusIds = {
+        workTrack: "workStatus",
+        skillsTrack: "skillsStatus",
+        projectsTrack: "projectsStatus"
+    };
+
+    function updateCarouselStatus(track, atEnd){
+        const status = document.getElementById(carouselStatusIds[track.id]);
+        if(!status) return;
+
+        const total = track.children.length;
+        const step = getScrollAmount(track);
+        const visible = Math.max(1, Math.min(total, Math.round((track.clientWidth + 10) / step)));
+
+        let first = Math.round(track.scrollLeft / step) + 1;
+        if(atEnd) first = total - visible + 1;
+        first = Math.min(Math.max(first, 1), total);
+
+        const last = Math.min(total, first + visible - 1);
+        status.textContent = (last > first ? first + "–" + last : first) + " / " + total;
     }
 
     function scrollTrack(trackId, direction, prevSelector, nextSelector){
@@ -238,12 +263,19 @@ $(document).ready(function(){
         $("html, body").animate({scrollTop: 0}, 500);
     });
 
+    function setMenuOpen(open){
+        $(".navbar .menu").toggleClass("show", open);
+        $(".menu-btn")
+            .attr("aria-expanded", open ? "true" : "false")
+            .attr("aria-label", open ? "Close menu" : "Open menu");
+    }
+
     $(".menu-btn").click(function(){
-        $(".navbar .menu").toggleClass("show");
+        setMenuOpen(!$(".navbar .menu").hasClass("show"));
     });
 
     $(".menu-link").click(function(){
-        $(".navbar .menu").removeClass("show");
+        setMenuOpen(false);
     });
 
     $(".book-prev").click(function(){
@@ -315,6 +347,10 @@ $(document).ready(function(){
 
     $(document).keydown(function(event){
         if(event.key === "Escape"){
+            if($(".navbar .menu").hasClass("show")){
+                setMenuOpen(false);
+                $(".menu-btn").trigger("focus");
+            }
             closeModals();
             return;
         }
