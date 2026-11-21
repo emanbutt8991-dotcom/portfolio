@@ -331,7 +331,7 @@ $(document).ready(function(){
         }
     }
 
-    $(".more-btn, .resume-btn").click(function(){
+    $(".more-btn").click(function(){
         const modalId = $(this).data("modal");
         modalOpener = this;
         $("#" + modalId).addClass("show").attr("aria-hidden", "false");
