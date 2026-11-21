@@ -81,7 +81,8 @@ $(document).ready(function(){
         const track = document.getElementById(trackId);
         if(!track) return;
 
-        const atStart = track.scrollLeft <= 2;
+        // Scroll-snap parks the first card a few px in (track padding), so allow a small margin
+        const atStart = track.scrollLeft <= 8;
         const atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 2;
 
         $(prevSelector).prop("disabled", atStart);
@@ -92,9 +93,11 @@ $(document).ready(function(){
         const track = document.getElementById(trackId);
         if(!track) return;
 
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
         track.scrollBy({
             left: getScrollAmount(track) * direction,
-            behavior: "smooth"
+            behavior: reduceMotion ? "auto" : "smooth"
         });
 
         setTimeout(function(){
@@ -104,10 +107,40 @@ $(document).ready(function(){
 
     updateEducationPage();
 
+    // Certifications: one certificate per page, browsed like the education book
+    const certPages = $(".cert-page");
+    let certIndex = 0;
+
+    function updateCertPage(){
+        certPages.each(function(i){
+            $(this).attr("aria-hidden", i === certIndex ? "false" : "true");
+        });
+
+        $(".cert-prev").prop("disabled", certIndex === 0);
+        $(".cert-next").prop("disabled", certIndex === certPages.length - 1);
+    }
+
+    $(".cert-prev").click(function(){
+        if(certIndex > 0){
+            certIndex--;
+            updateCertPage();
+        }
+    });
+
+    $(".cert-next").click(function(){
+        if(certIndex < certPages.length - 1){
+            certIndex++;
+            updateCertPage();
+        }
+    });
+
+    updateCertPage();
+
     function initializeButtons() {
 
         const workTrack = document.getElementById("workTrack");
         const skillsTrack = document.getElementById("skillsTrack");
+        const projectsTrack = document.getElementById("projectsTrack");
     
         if(workTrack){
             workTrack.scrollTo({
@@ -122,14 +155,23 @@ $(document).ready(function(){
                 behavior:"instant"
             });
         }
+
+        if(projectsTrack){
+            projectsTrack.scrollTo({
+                left:0,
+                behavior:"instant"
+            });
+        }
     
         // Left buttons OFF initially
         $(".work-prev").prop("disabled", true);
         $(".skills-prev").prop("disabled", true);
+        $(".projects-prev").prop("disabled", true);
     
         // Right buttons ON initially
         $(".work-next").prop("disabled", false);
         $(".skills-next").prop("disabled", false);
+        $(".projects-next").prop("disabled", false);
     
         // Refresh after browser fully renders
         setTimeout(function(){
@@ -144,6 +186,12 @@ $(document).ready(function(){
                 "skillsTrack",
                 ".skills-prev",
                 ".skills-next"
+            );
+
+            updateCarouselButtons(
+                "projectsTrack",
+                ".projects-prev",
+                ".projects-next"
             );
     
         },300);
@@ -171,6 +219,11 @@ $(document).ready(function(){
     $(window).on("resize", function(){
         updateCarouselButtons("workTrack", ".work-prev", ".work-next");
         updateCarouselButtons("skillsTrack", ".skills-prev", ".skills-next");
+        updateCarouselButtons("projectsTrack", ".projects-prev", ".projects-next");
+    });
+
+    $("#projectsTrack").on("scroll", function(){
+        updateCarouselButtons("projectsTrack", ".projects-prev", ".projects-next");
     });
 
     $("#workTrack").on("scroll", function(){
@@ -223,23 +276,65 @@ $(document).ready(function(){
         scrollTrack("skillsTrack", 1, ".skills-prev", ".skills-next");
     });
 
+    $(".projects-prev").click(function(){
+        scrollTrack("projectsTrack", -1, ".projects-prev", ".projects-next");
+    });
+
+    $(".projects-next").click(function(){
+        scrollTrack("projectsTrack", 1, ".projects-prev", ".projects-next");
+    });
+
+    // Element that opened the current popup, so focus can return to it on close
+    let modalOpener = null;
+
+    function closeModals(){
+        if(!$(".modal.show").length) return;
+
+        $(".modal").removeClass("show").attr("aria-hidden", "true");
+        $("body").css("overflow", "");
+
+        if(modalOpener){
+            modalOpener.focus();
+            modalOpener = null;
+        }
+    }
+
     $(".more-btn, .resume-btn").click(function(){
         const modalId = $(this).data("modal");
+        modalOpener = this;
         $("#" + modalId).addClass("show").attr("aria-hidden", "false");
+        $("#" + modalId + " .close-modal").trigger("focus");
         $("body").css("overflow", "hidden");
     });
 
     $(".close-modal, .modal").click(function(event){
         if(event.target !== this) return;
 
-        $(".modal").removeClass("show").attr("aria-hidden", "true");
-        $("body").css("overflow", "");
+        closeModals();
     });
 
     $(document).keydown(function(event){
         if(event.key === "Escape"){
-            $(".modal").removeClass("show").attr("aria-hidden", "true");
-            $("body").css("overflow", "");
+            closeModals();
+            return;
+        }
+
+        // Keep Tab focus inside an open popup
+        const openModal = $(".modal.show");
+        if(event.key !== "Tab" || !openModal.length) return;
+
+        const focusable = openModal.find("a[href], button:not([disabled])").filter(":visible");
+        if(!focusable.length) return;
+
+        const first = focusable.get(0);
+        const last = focusable.get(focusable.length - 1);
+
+        if(event.shiftKey && document.activeElement === first){
+            event.preventDefault();
+            last.focus();
+        }else if(!event.shiftKey && document.activeElement === last){
+            event.preventDefault();
+            first.focus();
         }
     });
 });
